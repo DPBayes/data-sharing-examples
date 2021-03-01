@@ -60,6 +60,7 @@ ax.errorbar(ds, np.mean(dpvi_err, axis=1), yerr=np.std(dpvi_err, axis=1), label=
 		linewidth=1, color='r')
 ax.set_xlabel('Dimension')
 ax.set_ylabel('Frobenius error')
+ax.set_title('Carat')
 fig.legend(loc=(0.15, .62))
 plt.savefig(plot_path+'gaus_vs_dpvi_frobenius_8-96_{}.pdf'.format(fname_dpvi), format='pdf', bbox_inches='tight')
 plt.close()

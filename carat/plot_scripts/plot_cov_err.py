@@ -3,6 +3,7 @@ import numpy as np
 import numpy.random as npr
 from collections import OrderedDict
 
+plot_path = './'
 
 use_cuda = torch.cuda.is_available()
 npr.seed(1234)
@@ -99,5 +100,6 @@ from matplotlib.collections import LineCollection
 legend2_handles.append(ErrorbarContainer((errorline,(), (LineCollection(np.zeros((10,10,2)), color='black'),)), has_yerr=True, has_xerr=False))
 legend2_handles.append(timeline)
 ax2.legend(legend2_handles, ['Error', 'Runtime'], bbox_to_anchor=(.0,0.8), loc='upper left')
+ax1.set_title("Carat")
 plt.savefig(plot_path+'pb_vs_dpvi_frobenius_8-96_{}.pdf'.format(fname_dpvi), format='pdf', bbox_inches='tight')
 plt.close()

@@ -1,16 +1,23 @@
-import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import pickle
-from itertools import product
 
-path = '/u/57/jalkoj1/unix/dp-data-sharing/pnas_code/diabetes/'
-plot_path = '/u/57/jalkoj1/unix/dp-data-sharing/tex/pnas/figures/'
-male_rarities, female_rarities = pickle.load(open(path+'plot_scripts_new/plot_pickles/raritys.p', 'rb'))
+## plot conf
+import matplotlib.pyplot as plt
+plt.rcParams.update({'font.size': 7})
+width = 8.5/2.54
+height = width*(3/4)
+###
+
+import os
+script_dir = os.path.dirname(os.path.abspath(__file__))
+
+plot_path = './'
+male_rarities, female_rarities = pickle.load(open(script_dir+'/plot_pickles/raritys.p', 'rb'))
 
 ## Load true fits
-real_fit_male = pd.read_csv(path+'plot_scripts_new/plot_pickles/real_male_fit.csv')
-real_fit_female = pd.read_csv(path+'plot_scripts_new/plot_pickles/real_female_fit.csv')
+real_fit_male = pd.read_csv(script_dir+'/plot_pickles/real_male_fit.csv')
+real_fit_female = pd.read_csv(script_dir+'/plot_pickles/real_female_fit.csv')
 
 coef_names_male = real_fit_male['Unnamed: 0']
 real_coef_male = real_fit_male['Estimate']
@@ -23,15 +30,14 @@ real_coef_female = real_fit_female['Estimate']
 ## Load DPVI fits
 epsilons = [0.74, 1.99, 3.92]
 epsilons = np.array(epsilons)
-seeds = pd.read_csv(path+'plot_scripts_new/gen_seeds.txt', header=None).values[:,0]
-n_runs = len(seeds)*10
+n_runs = 100
 
 # Load DP results
-syn_dpvi_coef_female_dict = pickle.load(open('../plot_pickles/female_coef_dict.p', 'rb'))
-syn_dpvi_coef_male_dict = pickle.load(open('../plot_pickles/male_coef_dict.p', 'rb'))
+syn_dpvi_coef_female_dict = pickle.load(open(script_dir+'/plot_pickles/female_coef_dict.p', 'rb'))
+syn_dpvi_coef_male_dict = pickle.load(open(script_dir+'/plot_pickles/male_coef_dict.p', 'rb'))
 
-syn_pb_coef_female_dict = pickle.load(open('../plot_pickles/pb_female_coef_dict.p', 'rb'))
-syn_pb_coef_male_dict = pickle.load(open('../plot_pickles/pb_male_coef_dict.p', 'rb'))
+syn_pb_coef_female_dict = pickle.load(open(script_dir+'/plot_pickles/pb_female_coef_dict.p', 'rb'))
+syn_pb_coef_male_dict = pickle.load(open(script_dir+'/plot_pickles/pb_male_coef_dict.p', 'rb'))
 
 ## Pick significant coefficients
 p_value = 0.025
@@ -95,10 +101,8 @@ syn_pb_significant_female_sem = {eps : syn_pb_significant_female_dict[eps].std(0
 		for eps in epsilons}
 
 ## Plot coefficients
-plt.rcParams.update({'font.size': 7})
-width = 8.7/2.54
-height = width*(3/4)
 fig, axis = plt.subplots(figsize=(width, height))
+
 # Males
 # DPVI
 mean_diffs_dpvi_male = []
@@ -123,7 +127,7 @@ for j, eps in enumerate(epsilons):
 	mean_diffs_pb_male.append(mean_diff_pb)
 	std_diffs_pb_male.append(std_diff_pb)
 axis.errorbar(np.round(epsilons, 0), mean_diffs_pb_male, yerr=std_diffs_pb_male, label='Male, Bayes network',\
-			color='cyan', linestyle='--')
+			color='cyan', linestyle=(0, (5, 10)))
 
 ## Females
 # DPVI
@@ -150,9 +154,17 @@ for j, eps in enumerate(epsilons):
 	mean_diffs_pb_female.append(mean_diff_pb)
 	std_diffs_pb_female.append(std_diff_pb)
 axis.errorbar(np.round(epsilons, 0), mean_diffs_pb_female, yerr=std_diffs_pb_female, label='Female, Bayes network',\
-		color='magenta', linestyle='--')
+		color='magenta', linestyle=(0, (5, 10)))
 axis.set_xlabel(r'$\epsilon$')
 axis.set_ylabel('MAE')
-fig.legend(loc=(.48, .4))
+
+#handles, labels = axis.get_legend_handles_labels()
+#handles[1].lines[0]._linestyle = (0, (5, 1))
+#handles[1].lines[0]._linestyle = "-"
+#handles[3].__dict__["lines"][0]._linestyle = "---"
+fig.legend(loc=(.48,.4))
+axis.set_title("ARD")
+
+#plt.show()
 plt.savefig(plot_path+'diabetes_mae_vs_pb_new.pdf', format='pdf', bbox_inches='tight')
 plt.close()

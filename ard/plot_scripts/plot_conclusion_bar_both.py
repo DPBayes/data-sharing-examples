@@ -1,30 +1,31 @@
 import pickle
 import numpy as np
 import pandas as pd
-import torch
-from itertools import product
 
+## plot conf
+import matplotlib.pyplot as plt
+plt.rcParams.update({'font.size': 7})
+width = 8.5/2.54
+height = width*(3/4)
+###
 
-path = '/u/57/jalkoj1/unix/dp-data-sharing/pnas_code/diabetes/'
-plot_path = '/u/57/jalkoj1/unix/dp-data-sharing/tex/pnas/figures/'
-male_rarities, female_rarities = pickle.load(open(path+'plot_scripts/plot_pickles/raritys.p', 'rb'))
+import os
+script_dir = os.path.dirname(os.path.abspath(__file__))
+plot_path = './'
+male_rarities, female_rarities = pickle.load(open(script_dir+'/plot_pickles/raritys.p', 'rb'))
 
 ## Load DPVI fits
 epsilons = [0.74, 1.99, 3.92]
 epsilons = np.array(epsilons)
-seeds = pd.read_csv(path+'plot_scripts_new/gen_seeds.txt', header=None).values[:,0]
-n_runs = len(seeds)*10
+n_runs = 100
 
 # Load DP results
-syn_dpvi_coef_female_dict = pickle.load(open('../plot_pickles/female_coef_dict.p', 'rb'))
-syn_dpvi_p_value_female_dict = pickle.load(open('../plot_pickles/female_p_value_dict.p', 'rb'))
+syn_dpvi_coef_female_dict = pickle.load(open(script_dir+'/plot_pickles/female_coef_dict.p', 'rb'))
+syn_dpvi_p_value_female_dict = pickle.load(open(script_dir+'/plot_pickles/female_p_value_dict.p', 'rb'))
 
-syn_dpvi_coef_male_dict = pickle.load(open('../plot_pickles/male_coef_dict.p', 'rb'))
-syn_dpvi_p_value_male_dict = pickle.load(open('../plot_pickles/male_p_value_dict.p', 'rb'))
+syn_dpvi_coef_male_dict = pickle.load(open(script_dir+'/plot_pickles/male_coef_dict.p', 'rb'))
+syn_dpvi_p_value_male_dict = pickle.load(open(script_dir+'/plot_pickles/male_p_value_dict.p', 'rb'))
 
-## Plot conclusions
-import matplotlib.pyplot as plt
-from itertools import product
 
 labels = ['Type 4', 'Type 3', 'Type 2', 'Type 1'][::-1]
 dm_names = [name for name in list(list(syn_dpvi_coef_female_dict.values())[0].columns) if 'DM' in name]
@@ -102,14 +103,12 @@ label_map = {"Type 1" : "Reproduced discovery", "Type 2" : "Correct sign, p>0.05
 order  = ["Type 1", "Type 2",  "Type 4", "Type 3"]
 
 ### PLOT
-plt.rcParams.update({'font.size': 7})
-width = 8.7/2.54
-height = width*(3/4)
 fig, axis = plt.subplots(figsize=(width, height))
 j = 0
 eps = epsilons[j]
 males = male_ct[eps]
 male_cumsum = np.cumsum([males[label] for label in order])
+
 # plot combined
 for i, lab in enumerate(order):
 	label = label_map[lab]
@@ -122,6 +121,7 @@ for i, lab in enumerate(order):
 for rect in rects:
 	axis.annotate('Combined', xy = (rect.get_x()+rect.get_width()/2, 0), xytext=(0,10), textcoords='offset points',\
 			rotation='vertical', va='bottom', ha='center', color='w')
+
 # plot separate
 males_sep = male_ct_sep[eps]
 for name_iter, coef_name in enumerate(dm_names):
@@ -148,6 +148,7 @@ j = 1
 females = female_ct[eps]
 female_cumsum = np.cumsum([females[label] for label in order])
 j = 2*j
+
 # plot combined
 for i, lab in enumerate(order):
 	label = label_map[lab]
@@ -160,6 +161,7 @@ for i, lab in enumerate(order):
 for rect in rects:
 	axis.annotate('Combined', xy = (rect.get_x()+rect.get_width()/2, 0), xytext=(0,10), textcoords='offset points',\
 			rotation='vertical', va='bottom', ha='center', color='w')
+
 # plot separate
 females_sep = female_ct_sep[eps]
 for name_iter, coef_name in enumerate(dm_names):
@@ -183,9 +185,10 @@ for name_iter, coef_name in enumerate(dm_names):
 fig.legend(loc='lower center', ncol=2)
 axis.set_yticks(np.arange(0, n_runs+1, 20))
 axis.set_yticklabels(np.arange(0, n_runs+1, 20))
-axis.set_ylabel('Percentage among 100 independent runs')
+axis.set_ylabel('Percentage of repeats')
 axis.set_xticks([-0.375, 1.625])
 axis.set_xticklabels(["Male", "Female"])
+axis.set_title(r'$\epsilon=1.0$')
 fig.subplots_adjust(bottom=0.25)
 plt.savefig(plot_path + 'conclusions_bars_both.pdf', format='pdf', bbox_inches='tight')
 plt.close()
