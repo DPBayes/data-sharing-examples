@@ -43,6 +43,6 @@ tensorflow-privacy==0.2.2
 termcolor==1.1.0
 torch==1.13.1
 torchvision==0.4.2
-tornado==6.3.2
+tornado==6.3.3
 Werkzeug==2.2.3
 wrapt==1.11.2
